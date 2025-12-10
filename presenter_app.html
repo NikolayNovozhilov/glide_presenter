@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG Frame Editor (Presentation Mode)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #1e1e1e;
+        }
+
+        /* Sidebar Styles */
+        #sidebar {
+            width: 300px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+            z-index: 10;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.3);
+            transition: width 0.3s ease;
+        }
+
+        /* Play Mode: Sidebar Changes */
+        body.play-mode #sidebar {
+            display: none;
+        }
+        
+        body.play-mode .editor-only {
+            display: none !important;
+        }
+
+        body.play-mode .play-only {
+            display: flex !important;
+        }
+
+        .play-only {
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .play-controls-help {
+            font-size: 13px;
+            color: #7f8c8d;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .key-badge {
+            background: #333;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid #555;
+            font-family: monospace;
+        }
+
+        #sidebar h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge {
+            background-color: #3498db;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            vertical-align: middle;
+        }
+
+        /* Buttons */
+        button {
+            font-family: inherit;
+        }
+
+        .primary-btn {
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+
+        .primary-btn:hover {
+            background-color: #2980b9;
+        }
+
+        #playBtn {
+            background-color: #27ae60;
+            margin-bottom: 10px;
+        }
+        #playBtn:hover { background-color: #229954; }
+
+        #stopBtn {
+            background-color: #e74c3c;
+            padding: 15px;
+            font-size: 16px;
+            width: 100%;
+        }
+        #stopBtn:hover { background-color: #c0392b; }
+
+        #fileInput, #jsonInput {
+            display: none;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            font-size: 12px;
+            color: #bdc3c7;
+        }
+
+        .zoom-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .zoom-buttons button {
+            flex: 1;
+            padding: 8px;
+            background-color: #34495e;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .zoom-buttons button:hover {
+            background-color: #4a5f7f;
+        }
+
+        #resetBtn {
+            padding: 8px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        #resetBtn:hover {
+            background-color: #c0392b;
+        }
+
+        /* Main Canvas Area Styles */
+        #canvas-container {
+            flex: 1;
+            background-color: #95a5a6;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+
+        body.play-mode #canvas-container {
+            background-color: #111;
+        }
+
+        /* The 16:9 Viewport */
+        #viewport {
+            background-color: white;
+            position: relative;
+            overflow: hidden; /* Masks the content to 16:9 */
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            cursor: grab;
+            transition: box-shadow 0.3s;
+        }
+
+        body.play-mode #viewport {
+            cursor: default;
+            box-shadow: none; /* Flat look for presentation */
+        }
+
+        #viewport.grabbing {
+            cursor: grabbing;
+        }
+
+        #viewport.hide-mode {
+            cursor: crosshair;
+        }
+
+        /* The transformable content inside the viewport */
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform-origin: 0 0;
+            pointer-events: auto;
+            /* Transition is added via JS class when in play mode */
+        }
+
+        /* CSS Transition for smooth camera moves */
+        #canvas.smooth-transition {
+            transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        /* Watermark */
+        #viewport-info {
+            position: absolute;
+            bottom: 10px;
+            right: 20px;
+            font-family: monospace;
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            pointer-events: none;
+            z-index: 5;
+        }
+        
+        body.play-mode #viewport-info {
+            opacity: 0.2;
+        }
+
+        /* Play Mode Controls Overlay */
+        #play-controls-overlay {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 13px;
+            display: none;
+            pointer-events: none;
+            z-index: 10;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        body.play-mode #play-controls-overlay {
+            display: block;
+        }
+
+        #play-controls-overlay .control-hint {
+            margin: 4px 0;
+        }
+
+        #play-controls-overlay kbd {
+            background: #333;
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid #555;
+            font-family: monospace;
+            font-size: 11px;
+            margin: 0 4px;
+        }
+
+        /* Hide escape hint in embedded mode */
+        body.embedded .escape-hint {
+            display: none;
+        }
+
+        #fileName {
+            font-size: 12px;
+            color: #95a5a6;
+            word-wrap: break-word;
+        }
+
+        #zoomLevel {
+            font-size: 12px;
+            color: #95a5a6;
+            text-align: center;
+        }
+
+        .frames-section {
+            border-top: 1px solid #34495e;
+            padding-top: 15px;
+            margin-top: 10px;
+        }
+
+        .frames-section h3 {
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .frames-list {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .frame-item {
+            background-color: #34495e;
+            padding: 8px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .frame-item:hover {
+            background-color: #4a5f7f;
+        }
+
+        .frame-item.active {
+            background-color: #3498db;
+        }
+
+        .frame-name {
+            flex: 1;
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .frame-name input {
+            width: 100%;
+            background-color: transparent;
+            border: 1px solid #7f8c8d;
+            color: white;
+            padding: 2px 5px;
+            font-size: 12px;
+            border-radius: 2px;
+        }
+
+        .frame-actions {
+            display: flex;
+            gap: 3px;
+        }
+
+        .frame-btn {
+            background-color: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 2px 5px;
+            font-size: 12px;
+            border-radius: 2px;
+            transition: background-color 0.3s;
+        }
+
+        .frame-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .frame-btn.delete {
+            color: #e74c3c;
+        }
+
+        .frame-btn.delete:hover {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        #addFrameBtn {
+            padding: 8px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background-color 0.3s;
+        }
+
+        #addFrameBtn:hover {
+            background-color: #229954;
+        }
+
+        .io-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .io-buttons button {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 13px;
+            color: white;
+            transition: background-color 0.3s;
+        }
+
+        #saveFramesBtn {
+            background-color: #f39c12;
+        }
+
+        #saveFramesBtn:hover {
+            background-color: #e67e22;
+        }
+
+        #loadFramesBtn {
+            background-color: #8e44ad;
+        }
+
+        #loadFramesBtn:hover {
+            background-color: #732d91;
+        }
+
+        .hidden-elements-section {
+            background-color: #34495e;
+            padding: 10px;
+            border-radius: 3px;
+            margin-top: 10px;
+        }
+
+        .hidden-elements-section h4 {
+            font-size: 12px;
+            margin-bottom: 8px;
+            color: #bdc3c7;
+        }
+
+        .hidden-elements-list {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .hidden-element-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #2c3e50;
+            padding: 5px 8px;
+            border-radius: 2px;
+            font-size: 11px;
+        }
+
+        .hidden-element-id {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #ecf0f1;
+        }
+
+        .unhide-btn {
+            background-color: #27ae60;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 2px 8px;
+            font-size: 10px;
+            border-radius: 2px;
+            transition: background-color 0.3s;
+        }
+
+        .unhide-btn:hover {
+            background-color: #229954;
+        }
+
+        .mode-indicator {
+            background-color: #34495e;
+            padding: 8px;
+            border-radius: 3px;
+            text-align: center;
+            font-size: 12px;
+            color: #bdc3c7;
+        }
+
+        .mode-indicator.active {
+            background-color: #e74c3c;
+            color: white;
+            font-weight: bold;
+        }
+
+        .svg-element-hover {
+            outline: 2px solid #e74c3c !important;
+            outline-offset: 2px;
+            cursor: pointer;
+        }
+
+        #toggleHideModeBtn {
+            padding: 8px;
+            background-color: #9b59b6;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background-color 0.3s;
+        }
+
+        #toggleHideModeBtn:hover {
+            background-color: #8e44ad;
+        }
+
+        #toggleHideModeBtn.active {
+            background-color: #e74c3c;
+        }
+
+        /* Hide file input buttons when embedded */
+        body.embedded #openFileBtn,
+        body.embedded #loadFramesBtn {
+            display: none;
+        }
+
+        /* Hide entire sidebar in embedded mode */
+        body.embedded #sidebar {
+            display: none;
+        }
+
+        /* Placeholder text */
+        #placeholder-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ccc;
+            font-size: 14px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="sidebar">
+        <!-- Common Header -->
+        <h2>SVG Editor <span class="badge">16:9</span></h2>
+
+        <!-- Play Mode Controls (Hidden in Editor Mode) -->
+        <div class="play-only">
+            <button id="stopBtn" class="primary-btn">■ Stop Presentation</button>
+            <div class="play-controls-help">
+                <p><span class="key-badge">→</span> or <span class="key-badge">Space</span> to Next</p>
+                <p><span class="key-badge">←</span> to Previous</p>
+                <p><span class="key-badge">Esc</span> to Exit</p>
+            </div>
+        </div>
+
+        <!-- Editor Controls (Hidden in Play Mode) -->
+        <div class="editor-only">
+            <button id="playBtn" class="primary-btn">▶ Play Presentation</button>
+            <button id="openFileBtn" class="primary-btn" style="background-color:#3498db;">Open SVG File</button>
+            <input type="file" id="fileInput" accept=".svg,image/svg+xml">
+            
+            <div id="fileName" style="margin-top:10px;"></div>
+            
+            <div class="controls" style="margin-top:15px;">
+                <div class="control-group">
+                    <label>Zoom Controls</label>
+                    <div class="zoom-buttons">
+                        <button id="zoomInBtn">+</button>
+                        <button id="zoomOutBtn">−</button>
+                    </div>
+                    <div id="zoomLevel">100%</div>
+                </div>
+                <button id="resetBtn">Reset View</button>
+            </div>
+
+            <div class="frames-section">
+                <h3>Frames</h3>
+                <button id="addFrameBtn" style="width: 100%; margin-bottom: 5px;">+ Add Frame</button>
+                <div class="frames-list" id="framesList"></div>
+                
+                <div class="io-buttons">
+                    <button id="saveFramesBtn">Save JSON</button>
+                    <button id="loadFramesBtn">Load JSON</button>
+                </div>
+                <input type="file" id="jsonInput" accept=".json">
+            </div>
+
+            <div class="frames-section">
+                <h3>Element Visibility</h3>
+                <button id="toggleHideModeBtn" style="width:100%">Toggle Hide Mode</button>
+                <div class="mode-indicator" id="modeIndicator" style="margin-top:5px">Click elements to hide</div>
+                <div id="hiddenElementsContainer"></div>
+            </div>
+
+            <div class="frames-section">
+                <h3>Publish</h3>
+                <button id="publishBtn" class="primary-btn" style="background-color:#f39c12;">📦 Export Standalone HTML</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="canvas-container">
+        <div id="viewport">
+            <div id="placeholder-text">No SVG Loaded</div>
+            <div id="canvas"></div>
+        </div>
+        <div id="viewport-info">16:9 Viewport</div>
+        <div id="play-controls-overlay">
+            <div class="control-hint"><kbd>→</kbd> <kbd>Space</kbd> Next | <kbd>←</kbd> Previous</div>
+            <div class="control-hint escape-hint"><kbd>Esc</kbd> Exit Presentation</div>
+        </div>
+    </div>
+
+    <script>
+        const openFileBtn = document.getElementById('openFileBtn');
+        const fileInput = document.getElementById('fileInput');
+        const canvasContainer = document.getElementById('canvas-container');
+        const viewport = document.getElementById('viewport');
+        const canvas = document.getElementById('canvas');
+        const placeholderText = document.getElementById('placeholder-text');
+        const fileName = document.getElementById('fileName');
+        const zoomInBtn = document.getElementById('zoomInBtn');
+        const zoomOutBtn = document.getElementById('zoomOutBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const zoomLevel = document.getElementById('zoomLevel');
+        const framesList = document.getElementById('framesList');
+        const addFrameBtn = document.getElementById('addFrameBtn');
+        const saveFramesBtn = document.getElementById('saveFramesBtn');
+        const loadFramesBtn = document.getElementById('loadFramesBtn');
+        const jsonInput = document.getElementById('jsonInput');
+        const toggleHideModeBtn = document.getElementById('toggleHideModeBtn');
+        const modeIndicator = document.getElementById('modeIndicator');
+        const hiddenElementsContainer = document.getElementById('hiddenElementsContainer');
+        
+        // Play mode elements
+        const playBtn = document.getElementById('playBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        
+        // Publish button
+        const publishBtn = document.getElementById('publishBtn');
+
+        let scale = 1;
+        let translateX = 0;
+        let translateY = 0;
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+        let frames = [];
+        let activeFrameId = null;
+        let frameCounter = 0;
+        let hideMode = false;
+        let currentHoveredElement = null;
+        let isPlaying = false;
+        let viewportWidth = 0;  // Track current viewport dimensions
+        let viewportHeight = 0;
+
+        // 16:9 Viewport Resize Logic
+        function resizeViewport() {
+            const containerWidth = canvasContainer.clientWidth;
+            const containerHeight = canvasContainer.clientHeight;
+            const padding = 40; // margin around the slide
+
+            const availWidth = containerWidth - padding;
+            const availHeight = containerHeight - padding;
+
+            const targetRatio = 16 / 9;
+            
+            let w = availWidth;
+            let h = availWidth / targetRatio;
+
+            if (h > availHeight) {
+                h = availHeight;
+                w = availHeight * targetRatio;
+            }
+
+            // Ensure dimensions are never negative
+            w = Math.max(100, w);
+            h = Math.max(100, h);
+
+            viewport.style.width = `${w}px`;
+            viewport.style.height = `${h}px`;
+            
+            // Update global viewport dimensions
+            viewportWidth = w;
+            viewportHeight = h;
+            
+            // Recalculate translate positions for new viewport size
+            if (activeFrameId !== null) {
+                const frame = frames.find(f => f.id === activeFrameId);
+                if (frame) {
+                    translateX = frame.translateX * viewportWidth;
+                    translateY = frame.translateY * viewportHeight;
+                    scale = frame.scale;
+                    canvas.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+                }
+            }
+        }
+
+        // Init and resize listener
+        window.addEventListener('load', () => {
+            resizeViewport();
+            // Load embedded data after viewport is sized
+            loadEmbeddedData();
+        });
+        window.addEventListener('resize', resizeViewport);
+
+        // Open file dialog
+        openFileBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // Handle file selection
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file && file.type === 'image/svg+xml') {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    loadSVG(event.target.result);
+                    fileName.textContent = file.name;
+                    placeholderText.style.display = 'none';
+                };
+                reader.readAsText(file);
+            } else {
+                alert('Please select a valid SVG file');
+            }
+        });
+
+        function loadSVG(svgString) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(svgString, 'image/svg+xml');
+            const svgElement = doc.querySelector('svg');
+            
+            if (svgElement) {
+                // Force SVG to fill the viewport
+                svgElement.setAttribute('width', '100%');
+                svgElement.setAttribute('height', '100%');
+                
+                // If no viewBox, try to create one from width/height attributes
+                if (!svgElement.hasAttribute('viewBox')) {
+                   const w = parseFloat(svgElement.getAttribute('width'));
+                   const h = parseFloat(svgElement.getAttribute('height'));
+                   if (!isNaN(w) && !isNaN(h)) {
+                       svgElement.setAttribute('viewBox', `0 0 ${w} ${h}`);
+                   }
+                }
+
+                canvas.innerHTML = '';
+                canvas.appendChild(svgElement);
+                
+                setupSVGInteraction();
+                
+                // Only reset frames if we aren't already working with data
+                if(frames.length === 0) {
+                    frames = [];
+                    frameCounter = 0;
+                    activeFrameId = null;
+                    // Create initial frame
+                    addFrame();
+                } else {
+                    // If we have frames loaded from JSON, apply them to new SVG
+                    if (activeFrameId !== null) {
+                         applyHiddenElements();
+                    }
+                }
+                
+                renderFrames();
+                renderHiddenElements();
+                
+                if (activeFrameId === null && frames.length > 0) {
+                    selectFrame(frames[0].id);
+                }
+            }
+        }
+
+        // Setup SVG element interaction
+        function setupSVGInteraction() {
+            const svgElement = canvas.querySelector('svg');
+            if (!svgElement) return;
+
+            // Add IDs to elements that don't have them
+            let idCounter = 0;
+            const allElements = svgElement.querySelectorAll('*');
+            allElements.forEach(el => {
+                if (!el.id && el.tagName !== 'svg' && el.tagName !== 'defs' && el.tagName !== 'style') {
+                    el.id = `el-${idCounter++}`;
+                }
+            });
+
+            // Add click listeners to all SVG elements
+            allElements.forEach(el => {
+                if (el.tagName === 'svg' || el.tagName === 'defs') return;
+
+                el.addEventListener('mouseenter', (e) => {
+                    if (hideMode && !isPlaying) {
+                        currentHoveredElement = el;
+                        el.classList.add('svg-element-hover');
+                    }
+                });
+
+                el.addEventListener('mouseleave', (e) => {
+                    if (hideMode && !isPlaying) {
+                        currentHoveredElement = null;
+                        el.classList.remove('svg-element-hover');
+                    }
+                });
+
+                el.addEventListener('click', (e) => {
+                    if (hideMode && activeFrameId !== null && !isPlaying) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        hideElement(el.id);
+                    }
+                });
+            });
+        }
+
+        // Hide element in current frame
+        function hideElement(elementId) {
+            if (activeFrameId === null) {
+                alert('Please select a frame first');
+                return;
+            }
+
+            const frame = frames.find(f => f.id === activeFrameId);
+            if (!frame) return;
+
+            if (!frame.hiddenElements) {
+                frame.hiddenElements = [];
+            }
+
+            if (!frame.hiddenElements.includes(elementId)) {
+                frame.hiddenElements.push(elementId);
+                applyHiddenElements();
+                renderHiddenElements();
+                renderFrames(); // Update hidden count in list
+            }
+        }
+
+        // Unhide element in current frame
+        function unhideElement(elementId) {
+            if (activeFrameId === null) return;
+
+            const frame = frames.find(f => f.id === activeFrameId);
+            if (!frame || !frame.hiddenElements) return;
+
+            const index = frame.hiddenElements.indexOf(elementId);
+            if (index !== -1) {
+                frame.hiddenElements.splice(index, 1);
+                applyHiddenElements();
+                renderHiddenElements();
+                renderFrames(); // Update hidden count in list
+            }
+        }
+
+        // Apply hidden elements to SVG
+        function applyHiddenElements() {
+            const svgElement = canvas.querySelector('svg');
+            if (!svgElement) return;
+
+            // First, show all elements
+            const allElements = svgElement.querySelectorAll('*');
+            allElements.forEach(el => {
+                if (el.tagName !== 'svg') {
+                    el.style.display = '';
+                    el.style.opacity = '';
+                }
+            });
+
+            // Then hide elements for current frame
+            if (activeFrameId !== null) {
+                const frame = frames.find(f => f.id === activeFrameId);
+                if (frame && frame.hiddenElements) {
+                    frame.hiddenElements.forEach(elementId => {
+                        const element = svgElement.querySelector(`#${CSS.escape(elementId)}`);
+                        if (element) {
+                            element.style.display = 'none';
+                        }
+                    });
+                }
+            }
+        }
+
+        // Render hidden elements list
+        function renderHiddenElements() {
+            if (activeFrameId === null) {
+                hiddenElementsContainer.innerHTML = '<div class="hidden-elements-section"><p style="font-size: 11px; color: #95a5a6;">Select a frame to view hidden elements</p></div>';
+                return;
+            }
+
+            const frame = frames.find(f => f.id === activeFrameId);
+            if (!frame || !frame.hiddenElements || frame.hiddenElements.length === 0) {
+                hiddenElementsContainer.innerHTML = '<div class="hidden-elements-section"><p style="font-size: 11px; color: #95a5a6;">No hidden elements in this frame</p></div>';
+                return;
+            }
+
+            const section = document.createElement('div');
+            section.className = 'hidden-elements-section';
+
+            const title = document.createElement('h4');
+            title.textContent = `Hidden Elements (${frame.hiddenElements.length})`;
+            section.appendChild(title);
+
+            const list = document.createElement('div');
+            list.className = 'hidden-elements-list';
+
+            frame.hiddenElements.forEach(elementId => {
+                const item = document.createElement('div');
+                item.className = 'hidden-element-item';
+
+                const idSpan = document.createElement('span');
+                idSpan.className = 'hidden-element-id';
+                idSpan.textContent = elementId;
+                idSpan.title = elementId;
+
+                const unhideBtn = document.createElement('button');
+                unhideBtn.className = 'unhide-btn';
+                unhideBtn.textContent = 'Show';
+                unhideBtn.onclick = () => unhideElement(elementId);
+
+                item.appendChild(idSpan);
+                item.appendChild(unhideBtn);
+                list.appendChild(item);
+            });
+
+            section.appendChild(list);
+            hiddenElementsContainer.innerHTML = '';
+            hiddenElementsContainer.appendChild(section);
+        }
+
+        // Toggle hide mode
+        toggleHideModeBtn.addEventListener('click', () => {
+            if(isPlaying) return;
+
+            hideMode = !hideMode;
+            
+            if (hideMode) {
+                viewport.classList.add('hide-mode');
+                toggleHideModeBtn.classList.add('active');
+                modeIndicator.classList.add('active');
+                modeIndicator.textContent = 'HIDE MODE: Click elements to hide';
+            } else {
+                viewport.classList.remove('hide-mode');
+                toggleHideModeBtn.classList.remove('active');
+                modeIndicator.classList.remove('active');
+                modeIndicator.textContent = 'Click elements to hide';
+                if (currentHoveredElement) {
+                    currentHoveredElement.classList.remove('svg-element-hover');
+                    currentHoveredElement = null;
+                }
+            }
+        });
+
+        // Zoom in
+        zoomInBtn.addEventListener('click', () => {
+            scale *= 1.02;
+            updateTransform();
+        });
+
+        // Zoom out
+        zoomOutBtn.addEventListener('click', () => {
+            scale /= 1.02;
+            updateTransform();
+        });
+
+        // Mouse wheel zoom
+        viewport.addEventListener('wheel', (e) => {
+            if (isPlaying) return; // Disable scroll zoom in play mode
+            e.preventDefault();
+            
+            const rect = viewport.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            const beforeZoomX = (mouseX - translateX) / scale;
+            const beforeZoomY = (mouseY - translateY) / scale;
+            
+            const delta = e.deltaY > 0 ? 0.9 : 1.1;
+            scale *= delta;
+            scale = Math.max(0.1, Math.min(scale, 50)); // Limit zoom
+            
+            translateX = mouseX - beforeZoomX * scale;
+            translateY = mouseY - beforeZoomY * scale;
+            
+            updateTransform();
+        });
+
+        // Pan functionality
+        viewport.addEventListener('mousedown', (e) => {
+            if (!hideMode && frames.length > 0 && !isPlaying) {
+                isDragging = true;
+                startX = e.clientX - translateX;
+                startY = e.clientY - translateY;
+                viewport.classList.add('grabbing');
+            }
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (isDragging && !hideMode && !isPlaying) {
+                translateX = e.clientX - startX;
+                translateY = e.clientY - startY;
+                updateTransform();
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+            viewport.classList.remove('grabbing');
+        });
+
+        // Reset view
+        resetBtn.addEventListener('click', () => {
+            resetView();
+        });
+
+        function resetView() {
+            scale = 1;
+            translateX = 0;
+            translateY = 0;
+            updateTransform();
+        }
+
+        function updateTransform() {
+            if (!isPlaying && activeFrameId !== null) {
+                const frame = frames.find(f => f.id === activeFrameId);
+                if (frame) {
+                    frame.scale = scale;
+                    frame.translateX = translateX / viewportWidth;  // Store as ratio
+                    frame.translateY = translateY / viewportHeight; // Store as ratio
+                }
+            }
+            
+            canvas.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+            zoomLevel.textContent = `${Math.round(scale * 100)}%`;
+        }
+
+        // Frame management functions
+        function addFrame() {
+            frameCounter++;
+            // Copy current state if frames exist, else defaults
+            let initialScale = scale;
+            let initialX = translateX;
+            let initialY = translateY;
+            let initialHidden = [];
+
+            if (activeFrameId !== null) {
+                const current = frames.find(f => f.id === activeFrameId);
+                if (current) {
+                    initialScale = current.scale;
+                    initialX = current.translateX;
+                    initialY = current.translateY;
+                    initialHidden = [...(current.hiddenElements || [])];
+                }
+            }
+
+            const newFrame = {
+                id: frameCounter,
+                name: `Frame ${frameCounter}`,
+                scale: initialScale,
+                translateX: initialX / viewportWidth,  // Store as ratio
+                translateY: initialY / viewportHeight, // Store as ratio
+                hiddenElements: initialHidden
+            };
+            frames.push(newFrame);
+            renderFrames();
+            selectFrame(newFrame.id);
+        }
+
+        function deleteFrame(id) {
+            if (frames.length <= 1) {
+                alert("Cannot delete the last frame");
+                return;
+            }
+            const index = frames.findIndex(f => f.id === id);
+            if (index !== -1) {
+                frames.splice(index, 1);
+                if (activeFrameId === id) {
+                    const nextId = frames[Math.max(0, index - 1)].id;
+                    selectFrame(nextId);
+                } else {
+                    renderFrames();
+                }
+            }
+        }
+
+        function selectFrame(id) {
+            activeFrameId = id;
+            const frame = frames.find(f => f.id === id);
+            if (frame) {
+                scale = frame.scale;
+                translateX = frame.translateX * viewportWidth;  // Convert ratio back to pixels
+                translateY = frame.translateY * viewportHeight; // Convert ratio back to pixels
+                updateTransform();
+                applyHiddenElements();
+                renderHiddenElements();
+            }
+            renderFrames();
+        }
+
+        function renameFrame(id, newName) {
+            const frame = frames.find(f => f.id === id);
+            if (frame) {
+                frame.name = newName;
+            }
+        }
+
+        function renderFrames() {
+            framesList.innerHTML = '';
+            frames.forEach(frame => {
+                const frameItem = document.createElement('div');
+                frameItem.className = 'frame-item' + (frame.id === activeFrameId ? ' active' : '');
+                
+                const frameName = document.createElement('div');
+                frameName.className = 'frame-name';
+                const hiddenCount = frame.hiddenElements ? frame.hiddenElements.length : 0;
+                frameName.textContent = `${frame.name}${hiddenCount > 0 ? ` (${hiddenCount} hidden)` : ''}`;
+                frameName.title = frame.name;
+                
+                const frameActions = document.createElement('div');
+                frameActions.className = 'frame-actions';
+                
+                const renameBtn = document.createElement('button');
+                renameBtn.className = 'frame-btn';
+                renameBtn.textContent = '✎';
+                renameBtn.title = 'Rename';
+                renameBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = frame.name;
+                    input.onblur = () => {
+                        renameFrame(frame.id, input.value || frame.name);
+                        renderFrames();
+                    };
+                    input.onkeydown = (e) => {
+                        if (e.key === 'Enter') {
+                            input.blur();
+                        }
+                    };
+                    frameName.innerHTML = '';
+                    frameName.appendChild(input);
+                    input.focus();
+                    input.select();
+                };
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'frame-btn delete';
+                deleteBtn.textContent = '×';
+                deleteBtn.title = 'Delete';
+                deleteBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    if (confirm(`Delete frame "${frame.name}"?`)) {
+                        deleteFrame(frame.id);
+                    }
+                };
+                
+                frameActions.appendChild(renameBtn);
+                frameActions.appendChild(deleteBtn);
+                
+                frameItem.appendChild(frameName);
+                frameItem.appendChild(frameActions);
+                
+                frameItem.onclick = () => {
+                    selectFrame(frame.id);
+                };
+                
+                framesList.appendChild(frameItem);
+            });
+        }
+
+        function saveFramesToJSON() {
+            const data = {
+                frames: frames.map(f => ({
+                    name: f.name,
+                    scale: f.scale,
+                    translateX: f.translateX,
+                    translateY: f.translateY,
+                    hiddenElements: f.hiddenElements || []
+                }))
+            };
+            
+            const jsonString = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'frames.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Load JSON Logic
+        loadFramesBtn.addEventListener('click', () => {
+            jsonInput.click();
+        });
+
+        jsonInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const data = JSON.parse(event.target.result);
+                    if (data.frames && Array.isArray(data.frames)) {
+                        // Reset internal state
+                        frames = [];
+                        frameCounter = 0;
+                        activeFrameId = null;
+
+                        // Rebuild frames with valid internal IDs
+                        data.frames.forEach(f => {
+                            frameCounter++;
+                            frames.push({
+                                id: frameCounter,
+                                name: f.name || `Frame ${frameCounter}`,
+                                scale: f.scale || 1,
+                                translateX: f.translateX || 0,
+                                translateY: f.translateY || 0,
+                                hiddenElements: f.hiddenElements || []
+                            });
+                        });
+
+                        // Refresh UI
+                        renderFrames();
+                        if (frames.length > 0) {
+                            selectFrame(frames[0].id);
+                        }
+                        
+                        // Reset file input so same file can be loaded again if needed
+                        jsonInput.value = '';
+                        alert('Frames loaded successfully!');
+                    } else {
+                        alert('Invalid JSON format: Missing "frames" array.');
+                    }
+                } catch (err) {
+                    alert('Error parsing JSON file: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        // Event listeners for frames
+        addFrameBtn.addEventListener('click', addFrame);
+        saveFramesBtn.addEventListener('click', saveFramesToJSON);
+
+        // ==========================================
+        // PLAY / PRESENTATION MODE LOGIC
+        // ==========================================
+
+        playBtn.addEventListener('click', () => {
+            if (frames.length === 0) {
+                alert("No frames to play!");
+                return;
+            }
+            isPlaying = true;
+            document.body.classList.add('play-mode');
+            canvas.classList.add('smooth-transition');
+            
+            // Force hide mode off visually for clean look
+            if (hideMode) {
+                // Just remove the class, don't change logic state
+                viewport.classList.remove('hide-mode');
+                if (currentHoveredElement) {
+                    currentHoveredElement.classList.remove('svg-element-hover');
+                }
+            }
+            
+            // Start at current frame (or first if none selected)
+            if (activeFrameId === null) {
+                selectFrame(frames[0].id);
+            } else {
+                // Re-apply current frame to ensure scale/pos is correct
+                selectFrame(activeFrameId);
+            }
+            
+            // Trigger resize to ensure black background fills correctly
+            resizeViewport();
+        });
+
+        function stopPresentation() {
+            isPlaying = false;
+            document.body.classList.remove('play-mode');
+            canvas.classList.remove('smooth-transition');
+            
+            // Restore hide mode visuals if needed
+            if (hideMode) {
+                viewport.classList.add('hide-mode');
+            }
+            resizeViewport();
+        }
+
+        stopBtn.addEventListener('click', stopPresentation);
+
+        function nextFrame() {
+            if (!isPlaying || frames.length === 0) return;
+            const currentIndex = frames.findIndex(f => f.id === activeFrameId);
+            if (currentIndex < frames.length - 1) {
+                selectFrame(frames[currentIndex + 1].id);
+            }
+        }
+
+        function prevFrame() {
+            if (!isPlaying || frames.length === 0) return;
+            const currentIndex = frames.findIndex(f => f.id === activeFrameId);
+            if (currentIndex > 0) {
+                selectFrame(frames[currentIndex - 1].id);
+            }
+        }
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (!isPlaying) return;
+
+            switch(e.key) {
+                case "ArrowRight":
+                case " ":
+                case "PageDown":
+                    e.preventDefault();
+                    nextFrame();
+                    break;
+                case "ArrowLeft":
+                case "PageUp":
+                    e.preventDefault();
+                    prevFrame();
+                    break;
+                case "Escape":
+                    // Don't allow exiting presentation in embedded mode
+                    if (!document.body.classList.contains('embedded')) {
+                        e.preventDefault();
+                        stopPresentation();
+                    }
+                    break;
+            }
+        });
+
+        // ==========================================
+        // PUBLISH FUNCTIONALITY
+        // ==========================================
+
+        publishBtn.addEventListener('click', () => {
+            if (!canvas.innerHTML || canvas.innerHTML.trim() === '') {
+                alert('Please load an SVG file first!');
+                return;
+            }
+
+            // Get current SVG content
+            const svgContent = canvas.innerHTML;
+            
+            // Get current frames data
+            const framesData = {
+                frames: frames.map(f => ({
+                    name: f.name,
+                    scale: f.scale,
+                    translateX: f.translateX,
+                    translateY: f.translateY,
+                    hiddenElements: f.hiddenElements || []
+                }))
+            };
+
+            // Read the current HTML document
+            const currentHTML = document.documentElement.outerHTML;
+
+            // Create embedded data script
+            const embeddedScript = `
+    <script id="embedded-data">
+        window.EMBEDDED_SVG = ${JSON.stringify(svgContent)};
+        window.EMBEDDED_FRAMES = ${JSON.stringify(framesData)};
+    <\/script>`;
+
+            // Insert embedded data before closing </head> tag
+            const modifiedHTML = currentHTML.replace('</head>', embeddedScript + '\n</head>');
+
+            // Create downloadable file
+            const blob = new Blob([modifiedHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'presentation-standalone.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            alert('Standalone HTML exported! The file contains all SVG and frame data embedded.');
+        });
+
+        // ==========================================
+        // CHECK FOR EMBEDDED DATA ON LOAD
+        // ==========================================
+
+        function loadEmbeddedData() {
+            if (window.EMBEDDED_SVG && window.EMBEDDED_FRAMES) {
+                // Mark as embedded
+                document.body.classList.add('embedded');
+
+                // Load SVG
+                canvas.innerHTML = window.EMBEDDED_SVG;
+                placeholderText.style.display = 'none';
+                fileName.textContent = 'Embedded SVG';
+
+                // Setup SVG interactivity
+                setupSVGInteraction();
+
+                // Load frames
+                const data = window.EMBEDDED_FRAMES;
+                if (data.frames && Array.isArray(data.frames)) {
+                    frames = [];
+                    frameCounter = 0;
+                    activeFrameId = null;
+
+                    data.frames.forEach(f => {
+                        frameCounter++;
+                        frames.push({
+                            id: frameCounter,
+                            name: f.name || `Frame ${frameCounter}`,
+                            scale: f.scale || 1,
+                            translateX: f.translateX || 0,
+                            translateY: f.translateY || 0,
+                            hiddenElements: f.hiddenElements || []
+                        });
+                    });
+
+                    renderFrames();
+                    if (frames.length > 0) {
+                        selectFrame(frames[0].id);
+                        
+                        // Automatically start presentation mode
+                        isPlaying = true;
+                        document.body.classList.add('play-mode');
+                        canvas.classList.add('smooth-transition');
+                        resizeViewport();
+                    }
+                }
+            }
+        }
+
+        // Initialize hidden elements display
+        renderHiddenElements();
+    </script>
+</body>
+</html>

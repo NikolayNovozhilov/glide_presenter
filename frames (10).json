@@ -1,0 +1,52 @@
+{
+  "frames": [
+    {
+      "name": "title",
+      "scale": 5.953069480715861,
+      "translateX": -0.10385665856426385,
+      "translateY": -1.8043126660809923,
+      "hiddenElements": [
+        "el-10"
+      ]
+    },
+    {
+      "name": "In your mind",
+      "scale": 3.2374299528310635,
+      "translateX": 0.17127808925179916,
+      "translateY": -1.1393516822781864,
+      "hiddenElements": [
+        "el-19",
+        "el-20",
+        "el-9"
+      ]
+    },
+    {
+      "name": "paper",
+      "scale": 5.759357845481607,
+      "translateX": -1.278231827778649,
+      "translateY": -2.0300092132740994,
+      "hiddenElements": [
+        "el-9"
+      ]
+    },
+    {
+      "name": "real data",
+      "scale": 3.143766102237093,
+      "translateX": -0.5098698262657336,
+      "translateY": -1.0929297642393458,
+      "hiddenElements": [
+        "el-10",
+        "el-15",
+        "el-52",
+        "el-2"
+      ]
+    },
+    {
+      "name": "first problem revieled",
+      "scale": 2.373758391574628,
+      "translateX": 0.042963328875748295,
+      "translateY": -0.7649875787841472,
+      "hiddenElements": []
+    }
+  ]
+}
