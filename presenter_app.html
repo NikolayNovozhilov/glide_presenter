@@ -968,13 +968,41 @@
 
         // Zoom in
         zoomInBtn.addEventListener('click', () => {
+            // Calculate viewport center
+            const centerX = viewport.clientWidth / 2;
+            const centerY = viewport.clientHeight / 2;
+            
+            // Point in canvas coordinates before zoom
+            const beforeZoomX = (centerX - translateX) / scale;
+            const beforeZoomY = (centerY - translateY) / scale;
+            
+            // Apply zoom
             scale *= 1.02;
+            
+            // Adjust translation to keep center point fixed
+            translateX = centerX - beforeZoomX * scale;
+            translateY = centerY - beforeZoomY * scale;
+            
             updateTransform();
         });
 
         // Zoom out
         zoomOutBtn.addEventListener('click', () => {
+            // Calculate viewport center
+            const centerX = viewport.clientWidth / 2;
+            const centerY = viewport.clientHeight / 2;
+            
+            // Point in canvas coordinates before zoom
+            const beforeZoomX = (centerX - translateX) / scale;
+            const beforeZoomY = (centerY - translateY) / scale;
+            
+            // Apply zoom
             scale /= 1.02;
+            
+            // Adjust translation to keep center point fixed
+            translateX = centerX - beforeZoomX * scale;
+            translateY = centerY - beforeZoomY * scale;
+            
             updateTransform();
         });
 
