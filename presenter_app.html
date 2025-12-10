@@ -1082,16 +1082,16 @@
             frameCounter++;
             // Copy current state if frames exist, else defaults
             let initialScale = scale;
-            let initialX = translateX;
-            let initialY = translateY;
+            let initialX = translateX / viewportWidth;  // Convert to ratio
+            let initialY = translateY / viewportHeight; // Convert to ratio
             let initialHidden = [];
 
             if (activeFrameId !== null) {
                 const current = frames.find(f => f.id === activeFrameId);
                 if (current) {
                     initialScale = current.scale;
-                    initialX = current.translateX;
-                    initialY = current.translateY;
+                    initialX = current.translateX;  // Already a ratio, use directly
+                    initialY = current.translateY; // Already a ratio, use directly
                     initialHidden = [...(current.hiddenElements || [])];
                 }
             }
@@ -1100,8 +1100,8 @@
                 id: frameCounter,
                 name: `Frame ${frameCounter}`,
                 scale: initialScale,
-                translateX: initialX / viewportWidth,  // Store as ratio
-                translateY: initialY / viewportHeight, // Store as ratio
+                translateX: initialX,  // Already a ratio
+                translateY: initialY,  // Already a ratio
                 hiddenElements: initialHidden
             };
             frames.push(newFrame);
