@@ -788,17 +788,45 @@
             }
         }
 
+        // Simple hash function to generate stable IDs from element content
+        function hashElement(el) {
+            // Create a string representation based on tag and content only (no position)
+            let str = el.tagName;
+            
+            // Add content-defining attributes (not position/transform)
+            const contentAttrs = ['d', 'points', 'href', 'xlink:href'];
+            contentAttrs.forEach(attr => {
+                if (el.hasAttribute(attr)) {
+                    str += '|' + attr + '=' + el.getAttribute(attr);
+                }
+            });
+            
+            // Add text content if present
+            if (el.textContent && el.textContent.trim()) {
+                str += '|text=' + el.textContent.trim();
+            }
+            
+            // Simple hash function (djb2)
+            let hash = 5381;
+            for (let i = 0; i < str.length; i++) {
+                hash = ((hash << 5) + hash) + str.charCodeAt(i);
+                hash = hash & hash; // Convert to 32-bit integer
+            }
+            
+            // Return as positive hex string
+            return 'el-' + (hash >>> 0).toString(16);
+        }
+
         // Setup SVG element interaction
         function setupSVGInteraction() {
             const svgElement = canvas.querySelector('svg');
             if (!svgElement) return;
 
-            // Add IDs to elements that don't have them
-            let idCounter = 0;
+            // Add IDs to elements that don't have them using content-based hashing
             const allElements = svgElement.querySelectorAll('*');
             allElements.forEach(el => {
                 if (!el.id && el.tagName !== 'svg' && el.tagName !== 'defs' && el.tagName !== 'style') {
-                    el.id = `el-${idCounter++}`;
+                    el.id = hashElement(el);
                 }
             });
 
