@@ -1431,8 +1431,15 @@
                 }))
             };
 
-            // Read the current HTML document
+            // Temporarily clear the canvas to avoid duplicating SVG in export
+            const originalContent = canvas.innerHTML;
+            canvas.innerHTML = '';
+            
+            // Read the current HTML document (now without SVG in canvas)
             const currentHTML = document.documentElement.outerHTML;
+            
+            // Restore canvas content
+            canvas.innerHTML = originalContent;
 
             // Create embedded data script
             const embeddedScript = `
