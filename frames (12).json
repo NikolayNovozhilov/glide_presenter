@@ -1,0 +1,138 @@
+{
+  "frames": [
+    {
+      "name": "Frame 1",
+      "scale": 6.115909044841463,
+      "translateX": -0.13312132369848784,
+      "translateY": -1.8646795765793964,
+      "hiddenElements": [
+        "el-5f289440"
+      ]
+    },
+    {
+      "name": "Frame 2",
+      "scale": 3.137373974132603,
+      "translateX": 0.158077360917068,
+      "translateY": -1.0874472786396019,
+      "hiddenElements": [
+        "el-90aa7479",
+        "el-e3f02a23",
+        "el-b286c7d"
+      ]
+    },
+    {
+      "name": "Frame 3",
+      "scale": 2.3563635806061116,
+      "translateX": 0.040558726219220326,
+      "translateY": -0.7037790267228824,
+      "hiddenElements": []
+    },
+    {
+      "name": "Frame 4",
+      "scale": 3.682233386081844,
+      "translateX": -1.391290375521314,
+      "translateY": 0.166490809914806,
+      "hiddenElements": [
+        "el-d480a62",
+        "el-982243cc",
+        "el-f23b8743"
+      ]
+    },
+    {
+      "name": "Frame 5",
+      "scale": 3.5902635643061096,
+      "translateX": -1.3696341227857607,
+      "translateY": -0.2266590276437404,
+      "hiddenElements": []
+    },
+    {
+      "name": "Frame 6",
+      "scale": 3.1812861483674237,
+      "translateX": -1.1346937767144003,
+      "translateY": -1.1016824697412075,
+      "hiddenElements": [
+        "el-90aa7479",
+        "el-b286c7d",
+        "el-e3f02a23",
+        "el-ee94f3f6",
+        "el-b0d37507",
+        "el-16a674df"
+      ]
+    },
+    {
+      "name": "Frame 7",
+      "scale": 2.4753039324399135,
+      "translateX": -0.5414710064613332,
+      "translateY": -0.7610671364339848,
+      "hiddenElements": [
+        "el-ac9b7a81",
+        "el-982243cc",
+        "el-f23b8743",
+        "el-c064227e",
+        "el-6a9e923c"
+      ]
+    },
+    {
+      "name": "Frame 8",
+      "scale": 3.1967757422858902,
+      "translateX": -1.8880970522110652,
+      "translateY": -0.1317550166844314,
+      "hiddenElements": [
+        "el-ac9b7a81",
+        "el-982243cc",
+        "el-f23b8743",
+        "el-c064227e",
+        "el-6a9e923c",
+        "el-d480a62",
+        "el-598f24b7",
+        "el-87b0e9cd"
+      ]
+    },
+    {
+      "name": "Frame 9",
+      "scale": 3.1967757422858902,
+      "translateX": -1.8850895334140727,
+      "translateY": -1.1021810818473388,
+      "hiddenElements": [
+        "el-b36f567",
+        "el-180288c6"
+      ]
+    },
+    {
+      "name": "Frame 10",
+      "scale": 2.848327186376728,
+      "translateX": -1.8476613908132926,
+      "translateY": -0.9789638953044246,
+      "hiddenElements": []
+    },
+    {
+      "name": "Frame 11",
+      "scale": 1.4835948630749562,
+      "translateX": -0.926924434600166,
+      "translateY": -0.040005643890146866,
+      "hiddenElements": [
+        "el-f23b8743",
+        "el-7c9d4d93",
+        "el-d480a62",
+        "el-598f24b7",
+        "el-b69e7d09",
+        "el-b36f567",
+        "el-c064227e"
+      ]
+    },
+    {
+      "name": "Frame 12",
+      "scale": 1.0389236380202724,
+      "translateX": -0.4095286615325639,
+      "translateY": -0.020457445253807126,
+      "hiddenElements": []
+    },
+    {
+      "name": "Frame 13",
+      "scale": 0.9534476875964988,
+      "translateX": 0.018387438479539,
+      "translateY": 0.01314949670211979,
+      "hiddenElements": []
+    }
+  ]
+}
