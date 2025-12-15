@@ -17,7 +17,7 @@ Perfect for technical diagrams, infographics, mind maps, architecture diagrams, 
 
 This project was inspired by **Bobby Broccoli's Videos** ([YouTube Channel](https://www.youtube.com/user/BobbyBroccoli)) However, they're created in Blender - powerful but too complex. I wanted something very simple.
 
-There is this **Obsidian Advanced Slides Plugin** ([Demo](https://www.youtube.com/watch?v=JwgtCrIVeEU))
+There is this **Excalidraw-Obsidian Slideshow plugin** ([Demo](https://www.youtube.com/watch?v=JwgtCrIVeEU))
 However the setup and usage are quite complex. Especially since I'm not an Obsidian user. The learning curve felt too steep for my specific task.
 
 **Sozi** is the closest match. However, I found it difficult to selectively hide content - a crucial feature for controlling narrative flow and what the audience sees at each moment. This was a dealbreaker for me. Additionally, the project's complexity made it challenging to modify or extend. I borrowed some concepts from it though.
@@ -28,7 +28,7 @@ However the setup and usage are quite complex. Especially since I'm not an Obsid
 
 This project is an experiment in AI-assisted development. Full transparency: I didn't write a single line of code myself. I can code python all right, but didn’t touch JavaScript for years.
 
-It took ~25 prompts given to Claude Sonnet 4.5 (browser chat, not Claude Code). I briefly tried Google AI Studio (Gemini Pro Preview) and I kept quite a bit of UI/CSS suggested by it. But ultimately I switched back to Claud because of speed.
+It took ~25 prompts given to Claude Sonnet 4.5 (browser chat, not Claude Code). I briefly tried Google AI Studio (Gemini Pro Preview) and I kept quite a bit of UI/CSS suggested by it. But ultimately I switched back to Claude because of speed.
 
 *I may write a more detailed post about the workflow, lessons learned, and effective prompting strategies later.*
 
@@ -50,7 +50,7 @@ Visit the [live demo](https://nikolaynovozhilov.github.io/glide_presenter/) and 
    - Click "Load SVG File" and select your SVG diagram
    - The SVG is never edited by the app. All frame data is stored in JSON file separately. 
    - You can keep editing your SVG diagram. The app generates stable hash-based IDs for SVG elements. You can move/resize elements without breaking hidden element references.
-   - I use (Excalidraw)[https://excalidraw.com/] to create diagrams and then export to SVG.  
+   - I use [Excalidraw](https://excalidraw.com/) to create diagrams and then export to SVG.  
 
 2. **Create Frames**
    - Use **zoom buttons (+/−)** or **mouse wheel** to zoom in/out
