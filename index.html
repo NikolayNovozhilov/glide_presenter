@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glide Presenter - Sample Presentations</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #333;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 2rem 2rem 1.5rem;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .github-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            background: #24292e;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            transition: background 0.3s;
+        }
+
+        .github-link:hover {
+            background: #1a1e22;
+        }
+
+        .github-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        main {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .intro {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .intro h2 {
+            color: #764ba2;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+
+        .intro p {
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 0.8rem;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .feature {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .feature h3 {
+            font-size: 1rem;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .presentations-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .presentations-section h2 {
+            color: #764ba2;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+
+        .presentations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .presentation-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .presentation-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            border-color: #667eea;
+        }
+
+        .presentation-card h3 {
+            color: #333;
+            margin-bottom: 0.8rem;
+            font-size: 1.3rem;
+        }
+
+        .presentation-card p {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 1.2rem;
+            font-size: 0.95rem;
+        }
+
+        .presentation-link {
+            display: inline-block;
+            padding: 0.7rem 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+
+        .presentation-link:hover {
+            opacity: 0.9;
+        }
+
+        .coming-soon {
+            opacity: 0.6;
+        }
+
+        .coming-soon-badge {
+            display: inline-block;
+            background: #95a5a6;
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        footer {
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        footer a {
+            color: white;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .presentations-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Glide Presenter</h1>
+            <p class="tagline">Turn your SVG into a "zoom-and-glide" presentation. Create engaging presentations from your diagrams</p>
+            <a href="https://github.com/NikolayNovozhilov/glide_presenter" class="github-link" target="_blank">
+                <svg class="github-icon" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+                </svg>
+                View on GitHub
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <section class="intro">
+            <h2>About Glide Presenter</h2>
+            <p>Glide Presenter is a lightweight, browser-based presentation tool that lets you create dynamic, zooming presentations from SVG files. It allows you to pan, zoom, and navigate through your visual content with smooth transitions.</p>
+            <p>Perfect for technical diagrams, infographics, mind maps, and any visual content created in tools like Excalidraw, Figma, or Illustrator.</p>
+            
+            <div class="features">
+                <div class="feature">
+                    <h3>Zoom & Pan</h3>
+                    <p>Smooth zooming and panning through your content</p>
+                </div>
+                <div class="feature">
+                    <h3>Lightweight</h3>
+                    <p>The app itself is an html file. Use here or download and use offline</p>
+                </div>
+                <div class="feature">
+                    <h3>Hide Elements</h3>
+                    <p>Selectively show/hide parts of your diagram</p>
+                </div>
+                <div class="feature">
+                    <h3>Standalone Export</h3>
+                    <p>Export as a single HTML file with everything embedded</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="presentations-section">
+            <h2>Sample Presentations</h2>
+            <div class="presentations-grid">
+                
+                <!-- Dunning-Kruger Effect Presentation -->
+                <div class="presentation-card">
+                    <h3>The Dunning-Kruger Effect</h3>
+                    <p>This is surprisingly a talk about linear regression and skepticism.</p>
+                    <br>
+                    <a href="dunning-kruger-effect.html" class="presentation-link">View Presentation →</a>
+                </div>
+
+                <!-- Placeholder for future presentations -->
+                <div class="presentation-card coming-soon">
+                    <h3>This could be your next presentation</h3>
+                    <p>Seriously, if you have created something using this tool - feel free to send me or submit a pull request. I will publish it here. </p>
+                    <span class="coming-soon-badge">Coming Soon</span>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Built with ❤️ using Glide Presenter | <a href="https://github.com/NikolayNovozhilov/glide_presenter">Contribute on GitHub</a></p>
+    </footer>
+</body>
+</html>
