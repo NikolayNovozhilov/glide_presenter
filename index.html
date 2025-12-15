@@ -194,6 +194,28 @@
             font-weight: 500;
         }
 
+        .launch-app-button {
+            display: inline-block;
+            padding: 1.2rem 2.5rem;
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .launch-app-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.5);
+        }
+
+        .launch-app-button:active {
+            transform: translateY(0);
+        }
+
         footer {
             background: rgba(0, 0, 0, 0.2);
             color: white;
@@ -245,7 +267,7 @@
                 </div>
                 <div class="feature">
                     <h3>Lightweight</h3>
-                    <p>The app itself is an html file. Use here or download and use offline</p>
+                    <p>The app itself is an html file. Use it here or download and use offline</p>
                 </div>
                 <div class="feature">
                     <h3>Hide Elements</h3>
@@ -255,6 +277,16 @@
                     <h3>Standalone Export</h3>
                     <p>Export as a single HTML file with everything embedded</p>
                 </div>
+            </div>
+        </section>
+
+        <section class="intro">
+            <h2>Try It Yourself</h2>
+            <p>Ready to create your own presentation? Launch the Glide Presenter app. The app is pure HTML, all data stays in your browser.</p>
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <a href="presenter_app.html" class="launch-app-button">
+                    Launch Glide Presenter App
+                </a>
             </div>
         </section>
 
