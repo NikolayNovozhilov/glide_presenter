@@ -4,6 +4,8 @@ A lightweight, browser-based presentation tool that transforms SVG files into dy
 
 ![Glide Presenter Demo](demo.gif)
 
+Try it [LIVE!](https://nikolaynovozhilov.github.io/glide_presenter/)
+
 ## What Does This App Do?
 
 Glide Presenter lets you create engaging, non-linear presentations from any SVG file. Instead of traditional slide-by-slide presentations, you can:
