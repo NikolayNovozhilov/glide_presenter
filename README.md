@@ -2,6 +2,8 @@
 
 A lightweight, browser-based presentation tool that transforms SVG files into dynamic, zoom-and-glide presentations. Simple and built for technical diagrams.
 
+![Glide Presenter Demo](demo.gif)
+
 ## What Does This App Do?
 
 Glide Presenter lets you create engaging, non-linear presentations from any SVG file. Instead of traditional slide-by-slide presentations, you can:
